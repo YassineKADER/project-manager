@@ -1,18 +1,19 @@
-import Login from "./components/Login";
-import Signup from "./components/Signup";
+import { AuthContextProvider } from "./components/context/AuthContext";
+import Home from "./components/pages/Home";
+import Login from "./components/pages/Login";
+import Signup from "./components/pages/Signup";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
-    <BrowserRouter>
+    <AuthContextProvider>
       <Routes>
-        <Route path="/">
-          <Route path="login" element={<Login></Login>}></Route>
-          <Route path="signup" element={<Signup></Signup>}></Route>
-        </Route>
+        <Route path="/" element={<Home></Home>}></Route>
+        <Route path="login" element={<Login></Login>}></Route>
+        <Route path="signup" element={<Signup></Signup>}></Route>
       </Routes>
-    </BrowserRouter>
+    </AuthContextProvider>
   );
 }
 
