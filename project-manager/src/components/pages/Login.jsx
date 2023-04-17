@@ -3,17 +3,27 @@ import "../css/Login.css";
 import image from "../../assets/login_logo.png"
 import google from "../../assets/google.png"
 import { UserAuth } from "../context/AuthContext";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 function Login() {
-  const {googleSignIn} = UserAuth()
+  const navigate = useNavigate()
+  const {googleSignIn, user} = UserAuth()
   const handelGoogleSignIn = async()=>{
     try{
       await googleSignIn();
     }catch(error){
       console.log(error)
     }
-  }
+  };
+
+  useEffect(()=>{
+    if(user != null){
+      navigate("/home")
+    }
+  },[user])
+
+
   return (
     <div className={"container"}>
     <div className="wrapper">
