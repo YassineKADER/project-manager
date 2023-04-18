@@ -1,4 +1,5 @@
 import { UserAuth } from "../context/AuthContext";
+import { Navbar } from "../items/Navbar";
 
 function Home() {
     const { logOut, user } = UserAuth();
@@ -12,8 +13,8 @@ function Home() {
   };
   return (
     <div>
+    <Navbar logout={handelLogoutClick} username={"yassine kader"}></Navbar>
       <h1>home page</h1>
-      <button onClick={handelLogoutClick}>logout</button>
     </div>
   );
 }
