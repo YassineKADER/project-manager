@@ -1,41 +1,101 @@
 import { useContext, createContext, useEffect, useState } from "react";
-import { GoogleAuthProvider, signInWithPopup,signOut, onAuthStateChanged, sendPasswordResetEmail, sendEmailVerification } from "firebase/auth";
-import { auth } from "../../firebase";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  sendEmailVerification,
+  signInWithEmailAndPassword
+} from "firebase/auth";
+import { auth, db } from "../../firebase";
+import { collection, getDoc, doc, setDoc } from "firebase/firestore/lite";
 
-const AuthContext = createContext()
+const AuthContext = createContext();
 
-export const AuthContextProvider = ({children})=> {
-    const [user, setUser] = useState(null)
-    const googleSignIn = ()=>{
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider);
+export const AuthContextProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const checkUsesrExist = async (email) => {
+    const userRef = doc(db, "users", email);
+    const data = await getDoc(userRef);
+    console.log(data.exists());
+    return data.exists();
+  };
+  const addUserData = async (
+    email,
+    firstName,
+    lastName,
+    profilePhoto,
+    signedWithGoogle
+  ) => {
+    const usersCollection = collection(db, "users");
+    try {
+      const docRef = doc(usersCollection, email);
+      await setDoc(docRef, {
+        firstName,
+        lastName,
+        profilePhoto,
+        signedWithGoogle,
+        projects: [],
+        displayProjects: true,
+      });
+      console.log("User added successfully");
+    } catch (error) {
+      console.error("Error adding user: ", error);
     }
-    const logOut = ()=>{
-        signOut(auth);
+  };
+
+  const emailPasswordSignIn = async (email, password) => {
+    let processResult;
+    try{
+        await signInWithEmailAndPassword(auth, email, password).then((user)=>{processResult = true}).catch((error)=>{processResult = false});
+    }catch(error){
+        console.log("error found")
     }
 
-    const sendResetEmail = (email)=>{
-        sendPasswordResetEmail(auth,email);
-    }
+    return processResult;
+  }
 
-    useEffect(()=>{
-        const unsubscribe = onAuthStateChanged(auth, (currentUser)=>{
-            setUser(currentUser);
-            //console.log(currentUser)
-        });
+  const googleSignIn = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider);
+  };
+  const logOut = () => {
+    signOut(auth);
+  };
 
-        return ()=>{
-            unsubscribe();
-        }
-    },[])
+  const sendResetEmail = (email) => {
+    sendPasswordResetEmail(auth, email);
+  };
 
-    return (
-        <AuthContext.Provider value={{googleSignIn, logOut, user, sendResetEmail}}>
-        {children}
-        </AuthContext.Provider>
-    )
-}
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      //console.log(currentUser)
+    });
 
-export const UserAuth = ()=>{
-    return useContext(AuthContext)
-}
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        googleSignIn,
+        logOut,
+        user,
+        sendResetEmail,
+        checkUsesrExist,
+        addUserData,
+        emailPasswordSignIn,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const UserAuth = () => {
+  return useContext(AuthContext);
+};
