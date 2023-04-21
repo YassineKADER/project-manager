@@ -13,10 +13,12 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { useState } from "react";
 import logo from "../../assets/white-logo.png"
+import { useNavigate } from "react-router-dom";
 
 export function Navbar({logout, username}) {
   const pages = [];
   const settings = ["Profeil", "Logout"];
+  const navigate = useNavigate();
 
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
@@ -114,7 +116,7 @@ export function Navbar({logout, username}) {
             <MenuItem onClick={logout}>
             <Typography textAlign="center">{"Log out"}</Typography>
           </MenuItem>
-          <MenuItem onClick={handleCloseUserMenu}>
+          <MenuItem onClick={()=>{navigate("/profeil")}}>
             <Typography textAlign="center">{"Profeil"}</Typography>
           </MenuItem>
             </Menu>

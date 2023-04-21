@@ -6,7 +6,7 @@ import {
   onAuthStateChanged,
   sendPasswordResetEmail,
   sendEmailVerification,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth, db } from "../../firebase";
 import { collection, getDoc, doc, setDoc } from "firebase/firestore/lite";
@@ -47,18 +47,25 @@ export const AuthContextProvider = ({ children }) => {
 
   const emailPasswordSignIn = async (email, password) => {
     let processResult;
-    try{
-        await signInWithEmailAndPassword(auth, email, password).then((user)=>{processResult = true}).catch((error)=>{processResult = false});
-    }catch(error){
-        console.log("error found")
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+        .then((user) => {
+          processResult = true;
+        })
+        .catch((error) => {
+          processResult = false;
+        });
+    } catch (error) {
+      console.log("error found");
     }
 
     return processResult;
-  }
+  };
 
-  const googleSignIn = () => {
+  const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    return result.user;
   };
   const logOut = () => {
     signOut(auth);

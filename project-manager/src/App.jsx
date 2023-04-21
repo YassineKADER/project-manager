@@ -6,6 +6,7 @@ import { Routes, Route } from "react-router-dom";
 import Mainpage from "./components/pages/Mainpage";
 import { Protected } from "./components/Protected";
 import { ResetPassword } from "./components/pages/ResetPassword";
+import { Profeil } from "./components/pages/Profeil";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="signup" element={<Signup></Signup>}></Route>
         <Route path="resetpassword" element={<ResetPassword></ResetPassword>}></Route>
         <Route path="home" element={<Protected><Home></Home></Protected>}></Route>
+        <Route path="profeil" element={<Protected><Profeil></Profeil></Protected>}></Route>
       </Routes>
     </AuthContextProvider>
   );

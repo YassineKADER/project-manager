@@ -6,17 +6,18 @@ import { UserAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { isValidEmail } from "../utilities";
+import { MessageModal } from "../items/MessageModal";
 
 function Login() {
   const navigate = useNavigate()
-  const {googleSignIn, user,emailPasswordSignIn} = UserAuth()
+  const {googleSignIn, user,emailPasswordSignIn, checkUsesrExist,logOut} = UserAuth()
   const [loginErrorState, setLoginErrorState] = useState(false)
   const [notValidEmail, setNotValidEmailState] = useState(false)
   const emailRef = useRef()
   const passwordRef = useRef()
-  const handelGoogleSignIn = async()=>{
+  const handelGoogleSignIn = ()=>{
     try{
-      await googleSignIn();
+      googleSignIn();
     }catch(error){
       console.log(error)
     }
@@ -41,7 +42,7 @@ function Login() {
     <div className="wrapper">
     <img src={image} height={100} width={100}></img>
     <h1>Welcome Back</h1>
-      <TextField error={loginErrorState} label={"Email address"}  fullWidth inputRef={emailRef}></TextField>
+      <TextField error={loginErrorState || notValidEmail} label={"Email address"}  fullWidth inputRef={emailRef}></TextField>
       <TextField error={loginErrorState} label={"password"} fullWidth inputRef={passwordRef}></TextField>
       {loginErrorState? <Typography variant="body1" color="error">Email Or Password My be Wrong</Typography>:null}
       <Button variant="contained" color="info" fullWidth size="large" onClick={handelEmailSignIn}>
