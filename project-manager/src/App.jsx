@@ -17,7 +17,7 @@ function App() {
         <Route path="signup" element={<Signup></Signup>}></Route>
         <Route path="resetpassword" element={<ResetPassword></ResetPassword>}></Route>
         <Route path="home" element={<Protected><Home></Home></Protected>}></Route>
-        <Route path="profeil" element={<Protected><Profeil></Profeil></Protected>}></Route>
+        <Route path="profeil" element={<Profeil></Profeil>}></Route>
       </Routes>
     </AuthContextProvider>
   );

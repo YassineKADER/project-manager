@@ -9,7 +9,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth, db } from "../../firebase";
-import { collection, getDoc, doc, setDoc } from "firebase/firestore/lite";
+import { collection, getDoc, doc, setDoc, updateDoc} from "firebase/firestore/lite";
 
 const AuthContext = createContext();
 
@@ -42,6 +42,30 @@ export const AuthContextProvider = ({ children }) => {
       console.log("User added successfully");
     } catch (error) {
       console.error("Error adding user: ", error);
+    }
+  };
+
+  const updateUser = async (email, updates) => {
+    try {
+      const userRef = doc(db, "users", email);
+      await updateDoc(userRef, updates);
+      console.log("User updated successfully");
+    } catch (error) {
+      console.error("Error updating user: ", error);
+    }
+  };
+
+  const getUser = async (email) => {
+    try {
+      const userRef = doc(db, "users", email);
+      const docSnap = await getDoc(userRef);
+      if (docSnap.exists()) {
+        console.log("User data:", docSnap.data());
+      } else {
+        console.log("User not found");
+      }
+    } catch (error) {
+      console.error("Error getting user: ", error);
     }
   };
 
@@ -96,6 +120,8 @@ export const AuthContextProvider = ({ children }) => {
         checkUsesrExist,
         addUserData,
         emailPasswordSignIn,
+        updateUser,
+        getUser,
       }}
     >
       {children}
