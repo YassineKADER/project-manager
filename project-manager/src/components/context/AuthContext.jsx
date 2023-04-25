@@ -60,9 +60,9 @@ export const AuthContextProvider = ({ children }) => {
       const userRef = doc(db, "users", email);
       const docSnap = await getDoc(userRef);
       if (docSnap.exists()) {
-        console.log("User data:", docSnap.data());
+        return docSnap.data();
       } else {
-        console.log("User not found");
+        return null
       }
     } catch (error) {
       console.error("Error getting user: ", error);
