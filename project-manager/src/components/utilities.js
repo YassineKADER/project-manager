@@ -3,3 +3,4 @@ export function isValidEmail(email) {
   // check if the email matches the pattern
   return emailPattern.test(email);
 }
+

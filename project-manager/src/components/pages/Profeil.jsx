@@ -6,12 +6,32 @@ import CheckCicleIcon from "@mui/icons-material/CheckCircle"
 import "../css/Profeil.css"
 
 export const Profeil = () => {
-    const {user,getUser} = UserAuth();
+    const {user,getUser, updateUser, uploadPhotoToFirebaseStorage} = UserAuth();
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
     const [imageurl, setImageurl] = useState("")
     const [saveState, setSavingState] = useState(false)
     const [displayProjects, setDisplayProjects] = useState(false)
+
+    const handelSaveClick = ()=>{
+      setSavingState(!saveState)
+      updateUser(user["email"],{
+        "displayProjects":displayProjects,
+        "firstName":firstName,
+        "lastName":lastName,
+      }).then(()=>{setSavingState(false)})
+    }
+
+    const handelPhotoChanged = (e)=>{
+      const file = e.target.files[0];
+      uploadPhotoToFirebaseStorage(file).then((url)=>{
+        setImageurl(url);
+        updateUser(user["email"],{
+          "profeilPhoto":url
+        })
+      });
+      
+    }
 
     useEffect(()=>{
         getUser(user["email"]).then((data) =>{
@@ -19,7 +39,7 @@ export const Profeil = () => {
           setFirstName(data["firstName"])
           setLastName(data["lastName"])
           setDisplayProjects(data["displayProjects"])
-          setImageurl(data["profilePhoto"].replace(/\s+/g, ''))
+          setImageurl(data["profeilPhoto"])
           console.log(firstName, lastName, displayProjects, imageurl)
         }
         )
@@ -27,7 +47,7 @@ export const Profeil = () => {
     }, [user])
   return (
         <div className={"root"}>
-        <Navbar logout={()=>{console.log("hello")}} username={"yassine kader"}></Navbar>
+        <Navbar username={firstName+" "+lastName} profeilPicture={imageurl}></Navbar>
 
         <Avatar
         alt={""}
@@ -41,7 +61,7 @@ export const Profeil = () => {
         type="file"
         id="avatarInput"
         accept="image/*"
-        onChange={()=>{console.log("changed")}}
+        onChange={handelPhotoChanged}
         style={{ display: "none" }}
         />
         <TextField
@@ -66,10 +86,10 @@ export const Profeil = () => {
         name="displayProjects"
         /></p>
         </div>
-        <Button variant="contained" loading onClick={()=>{setSavingState(!saveState)}}>
+        <Button variant="contained" loading onClick={handelSaveClick}>
         Save
         {saveState && <CircularProgress size={24} style={{ color: '#ffffff', strokeWidth: 1, marginLeft:5,}} />}
-        {!saveState && <CheckCicleIcon></CheckCicleIcon>}
+        
         </Button>
         </div>
   );

@@ -14,10 +14,13 @@ import MenuItem from "@mui/material/MenuItem";
 import { useState } from "react";
 import logo from "../../assets/white-logo.png"
 import { useNavigate } from "react-router-dom";
+import { UserAuth} from "../context/AuthContext";
 
-export function Navbar({logout, username}) {
+
+export function Navbar({username, profeilPicture}) {
   const pages = [];
   const settings = ["Profeil", "Logout"];
+  const {logOut} = UserAuth();
   const navigate = useNavigate();
 
   const [anchorElNav, setAnchorElNav] = useState(null);
@@ -38,7 +41,7 @@ export function Navbar({logout, username}) {
     setAnchorElUser(null);
   };
   return (
-    <AppBar position="static">
+    <AppBar position="static" style={{ backgroundColor: "#000000" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Avatar src={logo} sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
@@ -94,7 +97,7 @@ export function Navbar({logout, username}) {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={username}>{username[0]}</Avatar>
+                <Avatar src={profeilPicture} alt={username}>{(profeilPicture=="")&&username[0]}</Avatar>
               </IconButton>
             </Tooltip>
             <Menu
@@ -113,7 +116,7 @@ export function Navbar({logout, username}) {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-            <MenuItem onClick={logout}>
+            <MenuItem onClick={logOut}>
             <Typography textAlign="center">{"Log out"}</Typography>
           </MenuItem>
           <MenuItem onClick={()=>{navigate("/profeil")}}>

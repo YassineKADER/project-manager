@@ -8,7 +8,8 @@ import {
   sendEmailVerification,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { auth, db } from "../../firebase";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, db ,storage} from "../../firebase";
 import { collection, getDoc, doc, setDoc, updateDoc} from "firebase/firestore/lite";
 
 const AuthContext = createContext();
@@ -45,11 +46,20 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
+  const uploadPhotoToFirebaseStorage = async (file)=>{
+    const filename = user["email"];
+    const storageRef = ref(storage, "images/" + filename);
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  }
+
   const updateUser = async (email, updates) => {
     try {
       const userRef = doc(db, "users", email);
       await updateDoc(userRef, updates);
       console.log("User updated successfully");
+      return true
     } catch (error) {
       console.error("Error updating user: ", error);
     }
@@ -122,6 +132,7 @@ export const AuthContextProvider = ({ children }) => {
         emailPasswordSignIn,
         updateUser,
         getUser,
+        uploadPhotoToFirebaseStorage
       }}
     >
       {children}
