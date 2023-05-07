@@ -11,10 +11,13 @@ import {
   Typography,
 } from "@mui/material";
 import Edit from "@mui/icons-material/Edit";
+import { useNavigate } from "react-router-dom";
+
 
 export const ProjectCard = ({username, profeilPicture, progress, projectName, projectLink}) => {
+  const navigate = useNavigate()
   return (
-    <div>
+    <div onClick={()=>navigate("/project")}>
       <Card variant="outlined">
         <Box sx={{ p: 2, display: "flex" }}>
           <Avatar src={profeilPicture} />

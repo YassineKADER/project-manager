@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/YassineKADER/project-manager/issues"
   },
-  "homepage": "https://github.com/YassineKADER/project-manager#readme"
+  "homepage": "https://github.com/YassineKADER/project-manager#readme",
+  "dependencies": {
+    "react-gantt": "^2.1.8"
+  }
 }

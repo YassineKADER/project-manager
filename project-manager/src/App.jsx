@@ -7,6 +7,7 @@ import Mainpage from "./components/pages/Mainpage";
 import { Protected } from "./components/Protected";
 import { ResetPassword } from "./components/pages/ResetPassword";
 import { Profeil } from "./components/pages/Profeil";
+import { Project } from "./components/pages/Project";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="resetpassword" element={<ResetPassword></ResetPassword>}></Route>
         <Route path="home" element={<Protected><Home></Home></Protected>}></Route>
         <Route path="profeil" element={<Profeil></Profeil>}></Route>
+        <Route path="project" element={<Project></Project>}></Route>
       </Routes>
     </AuthContextProvider>
   );

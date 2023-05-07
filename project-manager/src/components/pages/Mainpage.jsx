@@ -11,6 +11,10 @@ function Mainpage(){
     const handelSignUpClick = ()=>{
         navigate("/signup")
     }
+
+    const handelProjectLink = ()=>{
+        navigate("/project")
+    }
     return(
         <>
         <p>{JSON.stringify(user)}</p>
@@ -18,6 +22,7 @@ function Mainpage(){
         <button onClick={()=>{emailPasswordSignIn("yassine.kader@gmail.com", "adminadm").then((result)=>{console.log(result)})}}>{"click"}</button>
         <button onClick={handelLoginClick}>login</button>
         <button onClick={handelSignUpClick}>signup</button>
+        <button onClick={handelProjectLink}>projectpage</button>
         </>
     )
 }
