@@ -4,3 +4,8 @@ export function isValidEmail(email) {
   return emailPattern.test(email);
 }
 
+export const removeDuplicates = (array) => {
+  return array.filter((item, index) => {
+    return index === array.findIndex(obj => JSON.stringify(obj) === JSON.stringify(item));
+  });
+};

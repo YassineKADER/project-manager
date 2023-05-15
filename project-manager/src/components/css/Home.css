@@ -1,0 +1,5 @@
+#addProject:hover{
+    cursor: pointer;
+    transition: all 0.3s;
+    background-color: rgba(0, 0, 0, 0.12);
+}

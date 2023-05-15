@@ -9,8 +9,17 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { auth, db ,storage} from "../../firebase";
-import { collection, getDoc, doc, setDoc, updateDoc} from "firebase/firestore/lite";
+import { auth, db, storage } from "../../firebase";
+import {
+  collection,
+  getDoc,
+  doc,
+  setDoc,
+  updateDoc,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore/lite";
 
 const AuthContext = createContext();
 
@@ -46,20 +55,20 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
-  const uploadPhotoToFirebaseStorage = async (file)=>{
+  const uploadPhotoToFirebaseStorage = async (file) => {
     const filename = user["email"];
     const storageRef = ref(storage, "images/" + filename);
     await uploadBytes(storageRef, file);
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
-  }
+  };
 
   const updateUser = async (email, updates) => {
     try {
       const userRef = doc(db, "users", email);
       await updateDoc(userRef, updates);
       console.log("User updated successfully");
-      return true
+      return true;
     } catch (error) {
       console.error("Error updating user: ", error);
     }
@@ -72,7 +81,7 @@ export const AuthContextProvider = ({ children }) => {
       if (docSnap.exists()) {
         return docSnap.data();
       } else {
-        return null
+        return null;
       }
     } catch (error) {
       console.error("Error getting user: ", error);
@@ -109,6 +118,60 @@ export const AuthContextProvider = ({ children }) => {
     sendPasswordResetEmail(auth, email);
   };
 
+  const getProjects = async (email) => {
+    console.log(email);
+    // Query the Project collection for documents that have a leader with the specified email
+    const leaderQuery = query(
+      collection(db, "projects"),
+      where("leader", "array-contains", doc(collection(db, "users"), email))
+    );
+
+    // Query the Project collection for documents that have a member with the specified email
+    const memberQuery = query(
+      collection(db, "projects"),
+      where("members", "array-contains", doc(collection(db, "users"), email))
+    );
+    let Projects = []
+    getDocs(leaderQuery).then((querySnapshot) => {
+      querySnapshot.forEach(async (doc) => {
+        const projectData = doc.data();
+        const id = doc.id;
+        // Get the leader data by fetching the document referenced by the "leader" field
+        const leaderRef = projectData.leader[0];
+        const leaderDoc = await getDoc(leaderRef);
+        const leaderData = leaderDoc.data();
+        if (!Projects.some((obj) => obj.id === id)){
+          Projects.push({ projectData, leaderData, id});
+        }
+      });
+      //console.log(Projects);
+    }).catch((error) => {
+      console.log("Error getting documents: ", error);
+    });
+
+
+    getDocs(memberQuery).then((querySnapshot) => {
+      querySnapshot.forEach(async (doc) => {
+        const projectData = doc.data();
+        const id = doc.id;
+        // Get the leader data by fetching the document referenced by the "leader" field
+        const leaderRef = projectData.leader[0];
+        const leaderDoc = await getDoc(leaderRef);
+        const leaderData = leaderDoc.data();
+        if (!Projects.some((obj) => obj.id === id)){
+          Projects.push({ projectData, leaderData, id});
+        }
+        
+      });
+      //
+      //console.log(Projects)
+    }).catch((error) => {
+      console.log("Error getting documents: ", error);
+    });
+
+    return Projects;
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -132,7 +195,8 @@ export const AuthContextProvider = ({ children }) => {
         emailPasswordSignIn,
         updateUser,
         getUser,
-        uploadPhotoToFirebaseStorage
+        uploadPhotoToFirebaseStorage,
+        getProjects,
       }}
     >
       {children}

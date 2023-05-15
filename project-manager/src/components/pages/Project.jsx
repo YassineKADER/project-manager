@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from "react"
 import { UserAuth } from "../context/AuthContext"
 import { Navbar } from "../items/Navbar"
 import {Chart} from "react-google-charts"
-import { Grid } from "@mui/material"
+import { Container, Grid } from "@mui/material"
+import { useParams } from "react-router-dom"
 
 export const Project  = ()=>{
+    const {uid} = useParams()
     const {user, getUser} = UserAuth()
     const [userInfo, setUserInfo] = useState(null)
     useEffect(()=>{
@@ -57,23 +59,25 @@ export const Project  = ()=>{
     return(
         <div>
         <Navbar username={"yassine"+" "+"lastName"} profeilPicture={""}></Navbar>
-        <Grid container>
-        <Grid item xs={8}>
+        <h1 style={{textAlign:"left"}}>Gantt Diagramme</h1>
+        
+        <Grid container style={{height:"100%"}}>
+        <Grid item xs={8} style={{height:"100%"}}>
         <Chart
       chartType="Gantt"
       data={data}
       width="100%"
-      height="400px"
+      height="100%"
       options={{
         gantt: {
-          trackHeight: 30,
+          trackHeight: 50,
         },
       }}
-    />
-    <Grid item xs={1}><h1>Tasks</h1></Grid>
-        </Grid>
+    /></Grid>
+    <Grid item xs={4} style={{height:"100%"}}><h1>Tasks</h1></Grid>
+        
     </Grid>
-
+    {uid}
         </div>
     )
 }

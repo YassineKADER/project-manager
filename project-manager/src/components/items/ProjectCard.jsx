@@ -14,10 +14,10 @@ import Edit from "@mui/icons-material/Edit";
 import { useNavigate } from "react-router-dom";
 
 
-export const ProjectCard = ({username, profeilPicture, progress, projectName, projectLink}) => {
+export const ProjectCard = ({username, profeilPicture, progress, projectName, projectLink, uid}) => {
   const navigate = useNavigate()
   return (
-    <div onClick={()=>navigate("/project")}>
+    <div onClick={()=>navigate("/project/"+uid)}>
       <Card variant="outlined">
         <Box sx={{ p: 2, display: "flex" }}>
           <Avatar src={profeilPicture} />
