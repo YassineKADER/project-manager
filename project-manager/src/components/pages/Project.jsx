@@ -12,6 +12,8 @@ import {
   Snackbar,
   Alert,
   Button,
+  Divider,
+  Checkbox,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import {
@@ -24,6 +26,8 @@ import {
 import { db } from "../../firebase";
 import DeleteIcon from "@mui/icons-material/Add";
 import { AddUser } from "../items/AddUser";
+import { AddTask } from "../items/AddTask";
+import Chat from "../items/Chat";
 
 export const Project = () => {
   const { uid } = useParams();
@@ -32,6 +36,22 @@ export const Project = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [addUser, setAddUser] = useState(false);
   const [deleteSnackBar, setDeleteSnackBar] = useState(false);
+  const [isUserLeader, setIsUserLeader] = useState(false)
+  const addTaskToDB = (Task)=>{
+    const project = doc(db, "projects", uid);
+    getDoc(project).then((snapshot)=>{
+      let taskArray = (snapshot.data()['tasks']!=[]) ? snapshot.data()['tasks'] : []
+      console.log(taskArray)
+      const updatedArray = [...taskArray, Task]
+      return updateDoc(project, {tasks: updatedArray });
+    })
+    .then(() => {
+      console.log('Task added to the document successfully.');
+    })
+    .catch((error) => {
+      console.error('Error updating document:', error);
+    });
+};
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -57,7 +77,11 @@ export const Project = () => {
           id: snapshot.id,
           is_leader: leaders.includes(snapshot.id),
         }));
-
+        members_arr.forEach((item)=>{
+          if(item.id == user.email && item.is_leader==true){
+            setIsUserLeader(true)
+          }
+        })
         setUsers(members_arr);
         console.log(members_arr);
       } catch (error) {
@@ -71,6 +95,7 @@ export const Project = () => {
     [
       { type: "string", label: "Task ID" },
       { type: "string", label: "Task Name" },
+      { type:"string", label:"Email" },
       { type: "date", label: "Start Date" },
       { type: "date", label: "End Date" },
       { type: "number", label: "Duration" },
@@ -80,6 +105,7 @@ export const Project = () => {
     [
       "Task 1",
       "Design",
+      "yassinekader6.contact@gmail.com",
       new Date(2022, 1, 1),
       new Date(2022, 1, 5),
       null,
@@ -89,6 +115,7 @@ export const Project = () => {
     [
       "Task 2",
       "Development",
+      "yassinekader8.contact@gmail.com",
       new Date(2022, 1, 6),
       new Date(2022, 1, 20),
       null,
@@ -98,6 +125,7 @@ export const Project = () => {
     [
       "Task 3",
       "Testing",
+      "yassinekader.contact@gmail.com",
       new Date(2022, 1, 21),
       new Date(2022, 2, 1),
       null,
@@ -107,6 +135,7 @@ export const Project = () => {
     [
       "Task 3",
       "Testing",
+      "yassine.contact@gmail.com",
       new Date(2022, 1, 21),
       new Date(2022, 2, 1),
       null,
@@ -116,6 +145,7 @@ export const Project = () => {
     [
       "Task 4",
       "hi",
+      "yassineker.contact@gmail.com",
       new Date(2022, 1, 21),
       new Date(2022, 2, 1),
       null,
@@ -125,6 +155,7 @@ export const Project = () => {
     [
       "Task 5",
       "Testing",
+      "yassinekadercontact@gmail.com",
       new Date(2022, 1, 21),
       new Date(2022, 2, 1),
       null,
@@ -132,14 +163,15 @@ export const Project = () => {
       "Task 2, Task 1",
     ],
     [
-      "Task 5",
-      "Testing",
+      "Task 6",
+      "Testing j",
+      "yassinekader.contact@gmail.com",
       new Date(2022, 1, 21),
       new Date(2022, 2, 31),
       null,
       0,
       "Task 2, Task 1",
-    ],
+    ]
   ];
   function handleChartSelect(selection) {
     // Handle chart selection events
@@ -168,7 +200,7 @@ export const Project = () => {
     <div style={{ height: "100%", width: "100%" }}>
       <Navbar
         username={"yassine" + " " + "lastName"}
-        profeilPicture={""}
+        profeilPicture={user.profeilPicture}
       ></Navbar>
       <div
         style={{
@@ -209,7 +241,7 @@ export const Project = () => {
               }
             ></Chip>
           ))}
-          <Chip
+          {isUserLeader && <Chip
             label={"Add"}
             deleteIcon={<DeleteIcon></DeleteIcon>}
             onClick={() => {
@@ -220,13 +252,13 @@ export const Project = () => {
               setAddUser(true);
               console.log("hi");
             }}
-          ></Chip>
+          ></Chip>}
         </Card>
 
         <div style={{ width: "90%", marginTop: "2rem", height: "100%" }}>
           <Grid container style={{ height: "100%" }}>
             <Grid item xs={8} style={{ height: (10*data.length).toString()+"vh"}}>
-              <Card
+              {isUserLeader && <Card
                 variant={"outlined"}
                 style={{
                   height: "50px",
@@ -244,9 +276,9 @@ export const Project = () => {
                 >
                   <Button variant="outlined">Delete</Button>
                   <Button variant="outlined">Edit</Button>
-                  <Button variant="outlined">Add</Button>
+                  <Button variant="outlined" onClick={()=>{addTaskToDB({name:"HI",nik:"Hello",test:null})}}>Add</Button>
                 </div>
-              </Card>
+              </Card>}
               <Chart
                 chartType="Gantt"
                 data={data}
@@ -259,9 +291,13 @@ export const Project = () => {
                 }}
               />
             </Grid>
-            <Grid item xs={4} style={{ height: "100%" }}>
-              <h1>Tasks</h1>
-              <h1>Task1</h1>
+            <Grid item xs={4} style={{ height: "100%", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column"}}>
+              <h2>Your Tasks:</h2>
+              <Card variant="outlined" style={{width:"80%", padding:"0.5rem"}}><div style={{display:"flex", alignItems:"center"}}><Checkbox></Checkbox><Typography>Deploy on aws</Typography></div></Card>
+              <Card variant="outlined" style={{width:"80%", padding:"0.5rem"}}><div style={{display:"flex", alignItems:"center"}}><Checkbox></Checkbox><Typography>Deploy</Typography></div></Card>
+              <Card variant="outlined" style={{width:"80%", padding:"0.5rem"}}><div style={{display:"flex", alignItems:"center"}}><Checkbox></Checkbox><Typography>Deploy aws</Typography></div></Card>
+              <Card variant="outlined" style={{width:"80%", padding:"0.5rem"}}><div style={{display:"flex", alignItems:"center"}}><Checkbox></Checkbox><Typography>Deploy Mobile App</Typography></div></Card>
+              <Card variant="outlined" style={{width:"80%", padding:"0.5rem"}}><div style={{display:"flex", alignItems:"center"}}><Checkbox></Checkbox><Typography>Deploy Files</Typography></div></Card>
             </Grid>
           </Grid>
         </div>
@@ -279,6 +315,8 @@ export const Project = () => {
           User Deleted !
         </Alert>
       </Snackbar>
+      <AddTask></AddTask>
+      <Chat></Chat>
     </div>
   );
 };
