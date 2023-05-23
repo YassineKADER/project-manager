@@ -235,7 +235,7 @@ export const Project = () => {
               label={mem.ref.firstName + " " + mem.ref.lastName}
               avatar={<Avatar src={mem.ref.profeilPhoto}></Avatar>}
               onDelete={
-                mem.is_leader == true
+                (mem.is_leader == true || !isUserLeader)
                   ? undefined
                   : (data) => handelMemberDelete((data = mem.id))
               }
