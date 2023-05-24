@@ -49,6 +49,18 @@ export const Project = () => {
     { type: "number", label: "Percent Complete" },
     { type: "string", label: "Dependencies" },
   ],])
+  const [selectedtask, setSelectedTask] = useState(null)
+  const [tasksAdded, setTaskAdded] = useState(false)
+  const handleTaskClick = (event) => {
+    setSelectedTask(event.row + 1); // Add 1 to the row index to skip the header row
+    const selection = event.chartWrapper.getChart().getSelection();
+  if (selection && selection.length > 0 && selection[0].row !== undefined) {
+    console.log('Clicked Task:', selection[0].row);
+    // Perform further actions with the selected task
+  }
+
+    // Perform further actions with the selected task
+  };
   const addTaskToDB = (Task)=>{
     const project = doc(db, "projects", uid);
     getDoc(project).then((snapshot)=>{
@@ -72,22 +84,26 @@ useEffect(() => {
         const docRef = doc(db, "projects", uid);
         const docSnapshot = await getDoc(docRef);
         const data = docSnapshot.data();
-        data.tasks.forEach((item) => {
-          console.log(item)
-          setTasks((prevTasks) => [
-            ...prevTasks,
-            [
-              item.taskId,
-              item.name,
-              item.email,
-              new Date(item.startDate.toDate().getFullYear(), item.startDate.toDate().getMonth(), item.startDate.toDate().getDate()), // Convert to ISO 8601 format
-              new Date(item.endDate.toDate().getFullYear(), item.endDate.toDate().getMonth(), item.endDate.toDate().getDate()),
-              item.duration,
-              0,
-              item.dependencies,
-            ],
-          ]);
-        })
+        console.log(data.tasks)
+        if(typeof data.tasks === 'object' && !tasksAdded){
+          setTaskAdded(true)
+          data.tasks.forEach((item) => {
+            console.log(item)
+            setTasks((prevTasks) => [
+              ...prevTasks,
+              [
+                item.taskId,
+                item.name,
+                item.email,
+                new Date(item.startDate.toDate().getFullYear(), item.startDate.toDate().getMonth(), item.startDate.toDate().getDate()), // Convert to ISO 8601 format
+                new Date(item.endDate.toDate().getFullYear(), item.endDate.toDate().getMonth(), item.endDate.toDate().getDate()),
+                item.duration,
+                0,
+                item.dependencies,
+              ],
+            ]);
+          })
+      } 
         console.log(tasks)
         let leaderRefs = data["leader"];
         let memberRefs = data["members"];
@@ -104,6 +120,7 @@ useEffect(() => {
           id: snapshot.id,
           is_leader: leaders.includes(snapshot.id),
         }));
+        console.log("members",members_arr)
         members_arr.forEach((item)=>{
           if(item.id == user.email && item.is_leader==true){
             setIsUserLeader(true)
@@ -117,89 +134,7 @@ useEffect(() => {
     };
 
     fetchData();
-  }, [addUser]);
-  const data = [
-    [
-      { type: "string", label: "Task ID" },
-      { type: "string", label: "Task Name" },
-      { type:"string", label:"Email" },
-      { type: "date", label: "Start Date" },
-      { type: "date", label: "End Date" },
-      { type: "number", label: "Duration" },
-      { type: "number", label: "Percent Complete" },
-      { type: "string", label: "Dependencies" },
-    ],
-    [
-      "Task 1",
-      "Design",
-      "yassinekader6.contact@gmail.com",
-      new Date(2022, 1, 1),
-      new Date(2022, 1, 5),
-      null,
-      50,
-      null,
-    ],
-    [
-      "Task 2",
-      "Development",
-      "yassinekader8.contact@gmail.com",
-      new Date(2022, 1, 6),
-      new Date(2022, 1, 20),
-      null,
-      25,
-      "Task 1",
-    ],
-    [
-      "Task 3",
-      "Testing",
-      "yassinekader.contact@gmail.com",
-      new Date(2022, 1, 21),
-      new Date(2022, 2, 1),
-      null,
-      0,
-      "Task 2, Task 1",
-    ],
-    [
-      "Task 3",
-      "Testing",
-      "yassine.contact@gmail.com",
-      new Date(2022, 1, 21),
-      new Date(2022, 2, 1),
-      null,
-      0,
-      "Task 2, Task 1",
-    ],
-    [
-      "Task 4",
-      "hi",
-      "yassineker.contact@gmail.com",
-      new Date(2022, 2, 1),
-      new Date(2022, 2, 2),
-      null,
-      0,
-      "Task 2, Task 1",
-    ],
-    [
-      "Task 5",
-      "Testing",
-      "yassinekadercontact@gmail.com",
-      new Date(2022, 1, 21),
-      new Date(2022, 2, 1),
-      null,
-      0,
-      "Task 2, Task 1",
-    ],
-    [
-      "Task 6",
-      "Testing j",
-      "yassinekader.contact@gmail.com",
-      new Date(2022, 1, 21),
-      new Date(2022, 2, 31),
-      null,
-      0,
-      "Task 2, Task 1",
-    ]
-  ];
+  }, [addUser,addTask]);
   function handleChartSelect(selection) {
     // Handle chart selection events
     console.log(selection);
@@ -227,7 +162,7 @@ useEffect(() => {
     <div style={{ height: "100%", width: "100%" }}>
       <Navbar
         username={"yassine" + " " + "lastName"}
-        profeilPicture={user.profeilPicture}
+        profeilPicture={""}
       ></Navbar>
       <div
         style={{
@@ -256,7 +191,8 @@ useEffect(() => {
               Members:{" "}
             </Typography>
           }
-          {members.map((mem, index) => (
+          {
+            members.map((mem, index) => (
             <Chip
               key={mem.id}
               label={mem.ref.firstName + " " + mem.ref.lastName}
@@ -314,8 +250,15 @@ useEffect(() => {
                 options={{
                   gantt: {
                     trackHeight: 50,
+                    clickable:true,
                   },
                 }}
+                chartEvents={[
+                  {
+                    eventName: 'select',
+                    callback: handleTaskClick,
+                  },
+                ]}
               />
             </Grid>
             <Grid item xs={4} style={{ height: "100%", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column"}}>

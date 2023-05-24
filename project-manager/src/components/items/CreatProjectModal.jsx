@@ -25,7 +25,7 @@ export const CreateProjectModal = ({ isopen, isopenSet }) => {
       members: [doc(db, "users", user.email)], // array of references to users in the "users" collection
       name: name,
       progress: 0,
-      tasks: {},
+      tasks: [],
     };
     setDoc(docRef, newProject).then((e)=>{
         setSuccess(true);
