@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { UserAuth } from "../context/AuthContext";
 import { Navbar } from "../items/Navbar";
 import { Chart } from "react-google-charts";
+import { format } from 'date-fns';
 import {
   Container,
   Grid,
@@ -37,6 +38,17 @@ export const Project = () => {
   const [addUser, setAddUser] = useState(false);
   const [deleteSnackBar, setDeleteSnackBar] = useState(false);
   const [isUserLeader, setIsUserLeader] = useState(false)
+  const [addTask, setAddTask] = useState(false)
+  const [tasks, setTasks] = useState([[
+    { type: "string", label: "Task ID" },
+    { type: "string", label: "Task Name" },
+    { type:"string", label:"Email" },
+    { type: "date", label: "Start Date" },
+    { type: "date", label: "End Date" },
+    { type: "number", label: "Duration" },
+    { type: "number", label: "Percent Complete" },
+    { type: "string", label: "Dependencies" },
+  ],])
   const addTaskToDB = (Task)=>{
     const project = doc(db, "projects", uid);
     getDoc(project).then((snapshot)=>{
@@ -52,7 +64,7 @@ export const Project = () => {
       console.error('Error updating document:', error);
     });
 };
-  useEffect(() => {
+useEffect(() => {
     const fetchData = async () => {
       try {
         console.log("hello world");
@@ -60,10 +72,25 @@ export const Project = () => {
         const docRef = doc(db, "projects", uid);
         const docSnapshot = await getDoc(docRef);
         const data = docSnapshot.data();
-
+        data.tasks.forEach((item) => {
+          console.log(item)
+          setTasks((prevTasks) => [
+            ...prevTasks,
+            [
+              item.taskId,
+              item.name,
+              item.email,
+              new Date(item.startDate.toDate().getFullYear(), item.startDate.toDate().getMonth(), item.startDate.toDate().getDate()), // Convert to ISO 8601 format
+              new Date(item.endDate.toDate().getFullYear(), item.endDate.toDate().getMonth(), item.endDate.toDate().getDate()),
+              item.duration,
+              0,
+              item.dependencies,
+            ],
+          ]);
+        })
+        console.log(tasks)
         let leaderRefs = data["leader"];
         let memberRefs = data["members"];
-
         // Fetch leader documents concurrently
         const leaderPromises = leaderRefs.map((ref) => getDoc(ref));
         const leaderSnapshots = await Promise.all(leaderPromises);
@@ -146,8 +173,8 @@ export const Project = () => {
       "Task 4",
       "hi",
       "yassineker.contact@gmail.com",
-      new Date(2022, 1, 21),
       new Date(2022, 2, 1),
+      new Date(2022, 2, 2),
       null,
       0,
       "Task 2, Task 1",
@@ -257,7 +284,7 @@ export const Project = () => {
 
         <div style={{ width: "90%", marginTop: "2rem", height: "100%" }}>
           <Grid container style={{ height: "100%" }}>
-            <Grid item xs={8} style={{ height: (10*data.length).toString()+"vh"}}>
+            <Grid item xs={8} style={{ height: (10*tasks.length).toString()+"vh"}}>
               {isUserLeader && <Card
                 variant={"outlined"}
                 style={{
@@ -276,12 +303,12 @@ export const Project = () => {
                 >
                   <Button variant="outlined">Delete</Button>
                   <Button variant="outlined">Edit</Button>
-                  <Button variant="outlined" onClick={()=>{addTaskToDB({name:"HI",nik:"Hello",test:null})}}>Add</Button>
+                  <Button variant="outlined" onClick={()=>{setAddTask(true)}}>Add</Button>
                 </div>
               </Card>}
               <Chart
                 chartType="Gantt"
-                data={data}
+                data={tasks}
                 width="100%"
                 height="100%"
                 options={{
@@ -303,7 +330,6 @@ export const Project = () => {
         </div>
       </div>
       <AddUser open={addUser} openSet={setAddUser} projectId={uid}></AddUser>
-      {uid}
       <Snackbar
         open={deleteSnackBar}
         autoHideDuration={1500}
@@ -315,8 +341,8 @@ export const Project = () => {
           User Deleted !
         </Alert>
       </Snackbar>
-      <AddTask></AddTask>
-      <Chat></Chat>
+      <AddTask open={addTask} setOpen={setAddTask} tasks={tasks} setTasks={setTasks} addTaskToDB={addTaskToDB} members={members}></AddTask>
+     
     </div>
   );
 };
