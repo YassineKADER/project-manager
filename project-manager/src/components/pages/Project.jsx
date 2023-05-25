@@ -52,10 +52,11 @@ export const Project = () => {
   const [selectedtask, setSelectedTask] = useState(null)
   const [tasksAdded, setTaskAdded] = useState(false)
   const handleTaskClick = (event) => {
-    setSelectedTask(event.row + 1); // Add 1 to the row index to skip the header row
+     // Add 1 to the row index to skip the header row
     const selection = event.chartWrapper.getChart().getSelection();
   if (selection && selection.length > 0 && selection[0].row !== undefined) {
     console.log('Clicked Task:', selection[0].row);
+    setSelectedTask(selection[0].row+1);
     // Perform further actions with the selected task
   }
 
@@ -76,65 +77,86 @@ export const Project = () => {
       console.error('Error updating document:', error);
     });
 };
+let isloaded = false
+let count=1
 useEffect(() => {
-    const fetchData = async () => {
-      try {
-        console.log("hello world");
-        console.log(user);
-        const docRef = doc(db, "projects", uid);
-        const docSnapshot = await getDoc(docRef);
-        const data = docSnapshot.data();
-        console.log(data.tasks)
-        if(typeof data.tasks === 'object' && !tasksAdded){
-          setTaskAdded(true)
-          data.tasks.forEach((item) => {
-            console.log(item)
-            setTasks((prevTasks) => [
-              ...prevTasks,
-              [
-                item.taskId,
-                item.name,
-                item.email,
-                new Date(item.startDate.toDate().getFullYear(), item.startDate.toDate().getMonth(), item.startDate.toDate().getDate()), // Convert to ISO 8601 format
-                new Date(item.endDate.toDate().getFullYear(), item.endDate.toDate().getMonth(), item.endDate.toDate().getDate()),
-                item.duration,
-                0,
-                item.dependencies,
-              ],
-            ]);
-          })
-      } 
-        console.log(tasks)
-        let leaderRefs = data["leader"];
-        let memberRefs = data["members"];
-        // Fetch leader documents concurrently
-        const leaderPromises = leaderRefs.map((ref) => getDoc(ref));
-        const leaderSnapshots = await Promise.all(leaderPromises);
-        const leaders = leaderSnapshots.map((snapshot) => snapshot.id);
-
-        // Fetch member documents concurrently
-        const memberPromises = memberRefs.map((ref) => getDoc(ref));
-        const memberSnapshots = await Promise.all(memberPromises);
-        const members_arr = memberSnapshots.map((snapshot) => ({
-          ref: snapshot.data(),
-          id: snapshot.id,
-          is_leader: leaders.includes(snapshot.id),
-        }));
-        console.log("members",members_arr)
-        members_arr.forEach((item)=>{
-          if(item.id == user.email && item.is_leader==true){
-            setIsUserLeader(true)
-          }
-        })
-        setUsers(members_arr);
-        console.log(members_arr);
-      } catch (error) {
-        console.log("Error fetching data:", error);
+  const fetchData = async () => {
+    try {
+      console.log("hello world");
+      console.log(user);
+      const docRef = doc(db, "projects", uid);
+      const docSnapshot = await getDoc(docRef);
+      const data = docSnapshot.data();
+      console.log(data.tasks);
+      
+      if (typeof data.tasks === 'object') {
+        const tasksToAdd = data.tasks.filter(item => {
+          // Check if the task already exists in the tasks array
+          const taskId = item.taskId;
+          const existingTask = tasks.find(task => task[0] === taskId);
+          return !existingTask;
+        });
+        
+        console.log("tasksToAdd", tasksToAdd);
+        
+        setTasks(prevTasks => [
+          ...prevTasks,
+          ...tasksToAdd.map(item => [
+            item.taskId,
+            item.name,
+            item.email,
+            new Date(item.startDate.toDate().getFullYear(), item.startDate.toDate().getMonth(), item.startDate.toDate().getDate()), // Convert to ISO 8601 format
+            new Date(item.endDate.toDate().getFullYear(), item.endDate.toDate().getMonth(), item.endDate.toDate().getDate()),
+            item.duration,
+            0,
+            item.dependencies,
+          ])
+        ]);
       }
-    };
+      
+      console.log(tasks);
+      isloaded=true  
+      
+      let leaderRefs = data["leader"];
+      let memberRefs = data["members"];
+      
+      // Fetch leader documents concurrently
+      const leaderPromises = leaderRefs.map(ref => getDoc(ref));
+      const leaderSnapshots = await Promise.all(leaderPromises);
+      const leaders = leaderSnapshots.map(snapshot => snapshot.id);
 
+      // Fetch member documents concurrently
+      const memberPromises = memberRefs.map(ref => getDoc(ref));
+      const memberSnapshots = await Promise.all(memberPromises);
+      const members_arr = memberSnapshots.map(snapshot => ({
+        ref: snapshot.data(),
+        id: snapshot.id,
+        is_leader: leaders.includes(snapshot.id),
+      }));
+      
+      console.log("members", members_arr);
+      
+      members_arr.forEach(item => {
+        if (item.id === user.email && item.is_leader === true) {
+          setIsUserLeader(true);
+        }
+      });
+
+      setUsers(members_arr);
+      
+      console.log(members_arr);
+    } catch (error) {
+      console.log("Error fetching data:", error);
+    }
+  };
+  if(!isloaded){
     fetchData();
-  }, [addUser,addTask]);
+    isloaded=true
+    console.log("count: ", count)
+    count+=1
+  }
+}, [addUser, addTask]);
+
   function handleChartSelect(selection) {
     // Handle chart selection events
     console.log(selection);
@@ -251,7 +273,10 @@ useEffect(() => {
                   gantt: {
                     trackHeight: 50,
                     clickable:true,
+                    labelMaxWidth: 200,
+                    labelWrap: true,
                   },
+
                 }}
                 chartEvents={[
                   {
@@ -263,11 +288,7 @@ useEffect(() => {
             </Grid>
             <Grid item xs={4} style={{ height: "100%", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column"}}>
               <h2>Your Tasks:</h2>
-              <Card variant="outlined" style={{width:"80%", padding:"0.5rem"}}><div style={{display:"flex", alignItems:"center"}}><Checkbox></Checkbox><Typography>Deploy on aws</Typography></div></Card>
-              <Card variant="outlined" style={{width:"80%", padding:"0.5rem"}}><div style={{display:"flex", alignItems:"center"}}><Checkbox></Checkbox><Typography>Deploy</Typography></div></Card>
-              <Card variant="outlined" style={{width:"80%", padding:"0.5rem"}}><div style={{display:"flex", alignItems:"center"}}><Checkbox></Checkbox><Typography>Deploy aws</Typography></div></Card>
-              <Card variant="outlined" style={{width:"80%", padding:"0.5rem"}}><div style={{display:"flex", alignItems:"center"}}><Checkbox></Checkbox><Typography>Deploy Mobile App</Typography></div></Card>
-              <Card variant="outlined" style={{width:"80%", padding:"0.5rem"}}><div style={{display:"flex", alignItems:"center"}}><Checkbox></Checkbox><Typography>Deploy Files</Typography></div></Card>
+              {tasks.map((item)=>{if(typeof item[0]=="string" && item[2]==user.email) return <Card variant="outlined" style={{width:"80%", padding:"0.5rem"}}><div style={{display:"flex", alignItems:"center"}}><Checkbox></Checkbox><Typography>{item[0]}</Typography></div></Card>})}
             </Grid>
           </Grid>
         </div>

@@ -40,7 +40,7 @@ export const AddTask = ({
   const [nameerror, setNameError] = useState(false);
   const [dateError, setDateError] = useState(false);
   const [userError, setUserError] = useState(false);
-
+  const [taskAdded, setTaskAdded] = useState(false);
   return (
     <div>
       <Modal
@@ -170,14 +170,16 @@ export const AddTask = ({
               }
               console.log(dateError, userError, nameerror)
               if(!dateError && !userError && !nameerror){
-                const task = [name, name, user, dstart, dend, null, 0, dependencies.join(',')]
-                const taskObject = {name:name,taskId:name,duration:null,progress:0,endDate:dend, startDate:dstart, email:user,dependencies:dependencies.join(',')}
+                const dep = (dependencies==null)? []: dependencies
+                const task = [name, name, user, dstart, dend, null, 0, dep.join(',')]
+                const taskObject = {name:name,taskId:name,duration:null,progress:0,endDate:dend, startDate:dstart, email:user,dependencies:dep.join(',')}
                 console.log(task)
                 setTasks((prevTasks) => [
                   ...prevTasks,
                   task,
                 ]);
                 addTaskToDB(taskObject)
+                setTaskAdded(true)
               }
               
               console.log(tasks)
@@ -185,7 +187,7 @@ export const AddTask = ({
           </div>
         </Card>
       </Modal>
-      <Snackbar open={true} autoHideDuration={1500} onClose={() => {}}>
+      <Snackbar open={taskAdded} autoHideDuration={1500} onClose={() => {setTaskAdded(false)}}>
         <Alert severity="success" sx={{ width: "100%" }}>
           Task Added !
         </Alert>
