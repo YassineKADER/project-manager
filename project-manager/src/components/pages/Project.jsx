@@ -15,7 +15,9 @@ import {
   Button,
   Divider,
   Checkbox,
+  SpeedDial, SpeedDialIcon, SpeedDialAction
 } from "@mui/material";
+import ChatIcon from '@mui/icons-material/Chat';
 import { useParams } from "react-router-dom";
 import {
   getDoc,
@@ -28,7 +30,7 @@ import { db } from "../../firebase";
 import DeleteIcon from "@mui/icons-material/Add";
 import { AddUser } from "../items/AddUser";
 import { AddTask } from "../items/AddTask";
-import Chat from "../items/Chat";
+import ChatComponent from "../items/Chat";
 
 export const Project = () => {
   const { uid } = useParams();
@@ -39,6 +41,7 @@ export const Project = () => {
   const [deleteSnackBar, setDeleteSnackBar] = useState(false);
   const [isUserLeader, setIsUserLeader] = useState(false);
   const [addTask, setAddTask] = useState(false);
+  const [openShat, setOpenShat] = useState(false)
   const [tasks, setTasks] = useState([
     [
       { type: "string", label: "Task ID" },
@@ -76,10 +79,13 @@ export const Project = () => {
       })
       .then(() => {
         console.log("Task added to the document successfully.");
+        updateProgress(tasks.length,0);
       })
       .catch((error) => {
         console.error("Error updating document:", error);
       });
+      console.log("lenght:", tasks.length)
+      
   };
   let isloaded = false;
   let count = 1;
@@ -120,7 +126,7 @@ export const Project = () => {
                 item.endDate.toDate().getDate()
               ),
               item.duration,
-              0,
+              item.progress,
               item.dependencies,
             ]),
           ]);
@@ -188,6 +194,23 @@ export const Project = () => {
     setDeleteSnackBar(true);
   }
 
+  const updateProgress = async (index, value) => {
+    const ref = doc(db, "projects", uid);
+    const docSnapshot = await getDoc(ref);
+    const tasks = docSnapshot.data().tasks;
+    tasks[index - 1].progress = value;
+    await updateDoc(ref, { tasks: tasks });
+  
+    let count = 0;
+    for (const task of tasks) {
+      if (task.progress === 100) {
+        count += 1;
+      }
+    }
+    const progress = (count / tasks.length) * 100;
+    await updateDoc(ref, { progress: progress });
+  };
+
   const handleAddUserClose = () => {
     setAddUser(false);
   };
@@ -207,6 +230,7 @@ export const Project = () => {
           flexDirection: "column",
         }}
       >
+      <div style={{width:"100%", display:"flex", alignItems:"center", justifyContent:"center"}}>
         <Card
           variant={"outlined"}
           style={{
@@ -215,11 +239,13 @@ export const Project = () => {
             rowGap: "10",
             gap: "5",
             alignItems: "center",
-            width: "90%",
+            width: "88%", 
             padding: "5px",
             marginTop: "10px",
+            justifyContent:"space-between"
           }}
         >
+        <div style={{display:"flex", height:"100%", alignItems:"center"}}>
           {
             <Typography variant="body2" style={{ marginRight: "5px" }}>
               Members:{" "}
@@ -251,8 +277,12 @@ export const Project = () => {
               }}
             ></Chip>
           )}
+          </div>
+          <Button style={{height:"100%"}} onClick={()=>{ setOpenShat((prevOpenShat) => !prevOpenShat);console.log("hello", openShat)}}><ChatIcon></ChatIcon></Button>
         </Card>
-
+       
+        
+        </div>
         <div style={{ width: "90%", marginTop: "2rem", height: "100%" }}>
           <Grid container style={{ height: "100%" }}>
             <Grid
@@ -290,12 +320,18 @@ export const Project = () => {
                           const tasksArray = docSnapshot.data().tasks;
                           tasksArray.splice(selectedtask-1,1);
                           await updateDoc(docRef, { tasks: tasksArray });
+                          let count=0
+                          for(const t of tasksArray){
+                            if(t.progress == 100){
+                              count+=1
+                            }
+                          }
+                          await updateDoc(docRef, {progress: (count / tasksArray.length)*100})
                         }
                       }}
                     >
                       Delete
                     </Button>
-                    <Button variant="outlined">Edit</Button>
                     <Button
                       variant="outlined"
                       onClick={() => {
@@ -340,20 +376,47 @@ export const Project = () => {
               }}
             >
               <h2>Your Tasks:</h2>
-              {tasks.map((item) => {
-                if (typeof item[0] == "string" && item[2] == user.email)
+              {tasks.map((item, index) => {
+                if (typeof item[0] === "string" && item[2] === user.email) {
+                  const isTaskDone = item[6] === 100;
+              
+                  const handleCheckboxChange = (event) => {
+                    const newValue = event.target.checked ? 100 : 0;
+                    const updatedTasks = [...tasks];
+                    updatedTasks[index][6] = newValue;
+                    setTasks(updatedTasks);
+                    updateProgress(index, newValue);
+                  };
+              
                   return (
                     <Card
                       variant="outlined"
-                      style={{ width: "80%", padding: "0.5rem" }}
+                      style={{
+                        width: "80%",
+                        padding: "0.5rem",
+                        backgroundColor: isTaskDone ? "lightgray" : "white",
+                      }}
+                      key={item[0]}
                     >
                       <div style={{ display: "flex", alignItems: "center" }}>
-                        <Checkbox></Checkbox>
-                        <Typography>{item[0]}</Typography>
+                        <Checkbox
+                          checked={isTaskDone}
+                          onChange={handleCheckboxChange}
+                        ></Checkbox>
+                        <Typography
+                          style={{
+                            textDecoration: isTaskDone ? "line-through" : "none",
+                            marginLeft: "0.5rem",
+                          }}
+                        >
+                          {item[0]}
+                        </Typography>
                       </div>
                     </Card>
                   );
+                }
               })}
+              
             </Grid>
           </Grid>
         </div>
@@ -378,6 +441,9 @@ export const Project = () => {
         addTaskToDB={addTaskToDB}
         members={members}
       ></AddTask>
+
+      <ChatComponent db={db} projectId={uid} userData={user} open={openShat} onClose={()=>{setOpenShat(false)}}></ChatComponent>
+      
     </div>
   );
 };

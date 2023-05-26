@@ -18,6 +18,7 @@
   "homepage": "https://github.com/YassineKADER/project-manager#readme",
   "dependencies": {
     "date-fns": "^2.30.0",
+    "react-draggable": "^4.4.5",
     "react-gantt": "^2.1.8"
   }
 }
