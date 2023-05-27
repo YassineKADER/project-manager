@@ -36,7 +36,7 @@ export const Project = () => {
   const { uid } = useParams();
   const { user, getUser } = UserAuth();
   const [members, setUsers] = useState([]);
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState({});
   const [addUser, setAddUser] = useState(false);
   const [deleteSnackBar, setDeleteSnackBar] = useState(false);
   const [isUserLeader, setIsUserLeader] = useState(false);
@@ -96,6 +96,7 @@ export const Project = () => {
   let isloaded = false;
   let count = 1;
   useEffect(() => {
+    getUser(user.email).then((data)=>setUserInfo(data))
     const fetchData = async () => {
       try {
         console.log("hello world");
@@ -226,7 +227,7 @@ export const Project = () => {
     <div style={{ height: "100%", width: "100%" }}>
       <Navbar
         username={"yassine" + " " + "lastName"}
-        profeilPicture={""}
+        profeilPicture={userInfo.profeilPhoto}
       ></Navbar>
       <div
         style={{
