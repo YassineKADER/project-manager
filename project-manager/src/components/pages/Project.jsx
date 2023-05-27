@@ -15,7 +15,7 @@ import {
   Button,
   Divider,
   Checkbox,
-  SpeedDial, SpeedDialIcon, SpeedDialAction
+  SpeedDial, SpeedDialIcon, SpeedDialAction, IconButton
 } from "@mui/material";
 import ChatIcon from '@mui/icons-material/Chat';
 import { useParams } from "react-router-dom";
@@ -286,7 +286,7 @@ export const Project = () => {
             ></Chip>
           )}
           </div>
-          <Button style={{height:"100%"}} onClick={()=>{ setOpenShat((prevOpenShat) => !prevOpenShat);console.log("hello", openShat)}}><ChatIcon></ChatIcon></Button>
+          <IconButton variant="outlined" color="primary" style={{height:"100%", border:"0.2px solid"}} onClick={()=>{ setOpenShat((prevOpenShat) => !prevOpenShat);console.log("hello", openShat)}}><ChatIcon></ChatIcon></IconButton>
         </Card>
        
         
