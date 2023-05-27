@@ -15,11 +15,13 @@ import {
 import Edit from "@mui/icons-material/Edit";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { EditProject } from "./EditProject";
 
 
 export const ProjectCard = ({username, profeilPicture, progress, projectName, projectLink, uid}) => {
   const navigate = useNavigate()
   const [anchorEl, setAnchorEl] = useState(null)
+  const [editName, setEditName] = useState(false)
 
   const handleRightClick = (event) => {
     event.preventDefault();
@@ -37,7 +39,7 @@ export const ProjectCard = ({username, profeilPicture, progress, projectName, pr
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={()=>{handleClose(), console.log("edit")}}>Edit</MenuItem>
+        <MenuItem onClick={()=>{handleClose(), setEditName(true)}}>Edit</MenuItem>
         <MenuItem onClick={()=>{handleClose(), console.log("remove")}}>Remove</MenuItem>
       </Menu>
       <Card variant="outlined">
@@ -63,6 +65,7 @@ export const ProjectCard = ({username, profeilPicture, progress, projectName, pr
         <Box sx={{width: '100%'}}><LinearProgress variant="determinate" value={progress} style={{borderRadius:5,height:10, backgroundColor:'#E5E5E5',border:'1px solid #E5E5E5',marginTop:5}}></LinearProgress></Box>
         </Stack>
       </Card>
+      <EditProject uid={uid} isopen={editName} isopenSet={setEditName}></EditProject>
     </div>
   );
 };
