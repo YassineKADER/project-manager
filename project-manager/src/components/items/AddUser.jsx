@@ -49,6 +49,7 @@ export const AddUser = ({open, openSet, projectId}) => {
     return updateDoc(doc(db, 'projects', projectId), { members: updatedReferences });
   })
   .then(() => {
+    openSet(false)
     setSnackBar(true)
   })
   .catch(() => {

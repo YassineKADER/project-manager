@@ -26,6 +26,7 @@ export const CreateProjectModal = ({ isopen, isopenSet }) => {
       name: name,
       progress: 0,
       tasks: [],
+      messages:[],
     };
     setDoc(docRef, newProject).then((e)=>{
         setSuccess(true);

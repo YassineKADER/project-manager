@@ -38,8 +38,13 @@ export const AddTask = ({
   const [user, setUser] = useState(null);
   const [dependencies, setdependencies] = useState(null);
   const [nameerror, setNameError] = useState(false);
+
   const [dateError, setDateError] = useState(false);
+  let dateErr=false
+  let userErr = false
+  let nameErr = false
   const [userError, setUserError] = useState(false);
+
   const [taskAdded, setTaskAdded] = useState(false);
   return (
     <div>
@@ -146,30 +151,38 @@ export const AddTask = ({
               const dend = new Date(endDate)
               if(!user){
                 setUserError(true)
+                userErr = true
               }
               else{
                 setUserError(false)
+                userErr = false
               }
               if(!startDate || !endDate){
                 setDateError(true)
+                dateErr = true
               }
               else{
                 setDateError(false)
+                dateErr = false
               }
               if(dstart>=dend){
                 setDateError(true)
+                dateErr = true
               }
               else{
                 setDateError(false)
+                dateErr = false
               }
               if(!name){
                 setNameError(true)
+                nameErr = true
               }
               else{
-                false
+                setNameError(false)
+                nameErr = false
               }
               console.log(dateError, userError, nameerror)
-              if(!dateError && !userError && !nameerror){
+              if(!dateErr && !userErr && !nameErr){
                 const dep = (dependencies==null)? []: dependencies
                 const task = [name, name, user, dstart, dend, null, 0, dep.join(',')]
                 const taskObject = {name:name,taskId:name,duration:null,progress:0,endDate:dend, startDate:dstart, email:user,dependencies:dep.join(',')}
@@ -180,6 +193,7 @@ export const AddTask = ({
                 ]);
                 addTaskToDB(taskObject)
                 setTaskAdded(true)
+                setOpen(false)
               }
               
               console.log(tasks)

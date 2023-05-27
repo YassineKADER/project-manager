@@ -6,20 +6,42 @@ import {
   Divider,
   IconButton,
   LinearProgress,
+  Menu,
+  MenuItem,
   Stack,
   Switch,
   Typography,
 } from "@mui/material";
 import Edit from "@mui/icons-material/Edit";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 
 export const ProjectCard = ({username, profeilPicture, progress, projectName, projectLink, uid}) => {
   const navigate = useNavigate()
+  const [anchorEl, setAnchorEl] = useState(null)
+
+  const handleRightClick = (event) => {
+    event.preventDefault();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
-    <div onClick={()=>navigate("/project/"+uid)}>
+    <div onContextMenu={handleRightClick}>
+    <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={()=>{handleClose(), console.log("edit")}}>Edit</MenuItem>
+        <MenuItem onClick={()=>{handleClose(), console.log("remove")}}>Remove</MenuItem>
+      </Menu>
       <Card variant="outlined">
-        <Box sx={{ p: 2, display: "flex" }}>
+        <Box sx={{ p: 2, display: "flex"}}  onClick={()=>navigate("/project/"+uid)} style={{}}>
           <Avatar src={profeilPicture} />
           <Stack spacing={0.5}>
             <Typography fontWeight={700} style={{ marginLeft: 5 }}>

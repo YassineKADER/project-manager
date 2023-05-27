@@ -31,7 +31,7 @@ import DeleteIcon from "@mui/icons-material/Add";
 import { AddUser } from "../items/AddUser";
 import { AddTask } from "../items/AddTask";
 import ChatComponent from "../items/Chat";
-
+import "../css/Project.css"
 export const Project = () => {
   const { uid } = useParams();
   const { user, getUser } = UserAuth();
@@ -86,6 +86,12 @@ export const Project = () => {
       });
       console.log("lenght:", tasks.length)
       
+  };
+  const hideElementWithId = () => {
+    const element = document.getElementById('google-visualization-errors-all-5');
+    if (element) {
+      element.style.display = 'none';
+    }
   };
   let isloaded = false;
   let count = 1;
@@ -163,12 +169,13 @@ export const Project = () => {
         setUsers(members_arr);
 
         console.log(members_arr);
+        
       } catch (error) {
         console.log("Error fetching data:", error);
       }
     };
     if (!isloaded) {
-      fetchData();
+      fetchData()
       isloaded = true;
       console.log("count: ", count);
       count += 1;
@@ -343,6 +350,7 @@ export const Project = () => {
                   </div>
                 </Card>
               )}
+              {(tasks.length != 1) &&
               <Chart
                 chartType="Gantt"
                 data={tasks}
@@ -362,7 +370,7 @@ export const Project = () => {
                     callback: handleTaskClick,
                   },
                 ]}
-              />
+              />}
             </Grid>
             <Grid
               item
