@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -46,6 +46,9 @@ export const AddTask = ({
   const [userError, setUserError] = useState(false);
 
   const [taskAdded, setTaskAdded] = useState(false);
+  useEffect(()=>{
+    setdependencies(null)
+  },[open])
   return (
     <div>
       <Modal

@@ -295,7 +295,7 @@ export const Project = () => {
             <Grid
               item
               xs={8}
-              style={{ height: (10 * tasks.length).toString() + "vh" }}
+              style={{ height: (8 * tasks.length).toString() + "vh" }}
             >
               {isUserLeader && (
                 <Card
