@@ -16,13 +16,16 @@ import Edit from "@mui/icons-material/Edit";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { EditProject } from "./EditProject";
+import { doc } from "firebase/firestore/lite";
+import { RemoveProject } from "./RemoveProject";
+
 
 
 export const ProjectCard = ({username, profeilPicture, progress, projectName, projectLink, uid}) => {
   const navigate = useNavigate()
   const [anchorEl, setAnchorEl] = useState(null)
   const [editName, setEditName] = useState(false)
-
+  const [deleteProject, setDeleteProject] = useState(false)
   const handleRightClick = (event) => {
     event.preventDefault();
     setAnchorEl(event.currentTarget);
@@ -32,6 +35,8 @@ export const ProjectCard = ({username, profeilPicture, progress, projectName, pr
     setAnchorEl(null);
   };
 
+
+
   return (
     <div onContextMenu={handleRightClick}>
     <Menu
@@ -40,7 +45,7 @@ export const ProjectCard = ({username, profeilPicture, progress, projectName, pr
         onClose={handleClose}
       >
         <MenuItem onClick={()=>{handleClose(), setEditName(true)}}>Edit</MenuItem>
-        <MenuItem onClick={()=>{handleClose(), console.log("remove")}}>Remove</MenuItem>
+        <MenuItem onClick={()=>{handleClose(), setDeleteProject(true)}}>Remove</MenuItem>
       </Menu>
       <Card variant="outlined">
         <Box sx={{ p: 2, display: "flex"}}  onClick={()=>navigate("/project/"+uid)} style={{}}>
@@ -66,6 +71,7 @@ export const ProjectCard = ({username, profeilPicture, progress, projectName, pr
         </Stack>
       </Card>
       <EditProject uid={uid} isopen={editName} isopenSet={setEditName}></EditProject>
+      <RemoveProject uid={uid} isopen={deleteProject} isopenSet={setDeleteProject} project={projectName}></RemoveProject>
     </div>
   );
 };

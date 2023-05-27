@@ -30,6 +30,7 @@ export const CreateProjectModal = ({ isopen, isopenSet }) => {
     };
     setDoc(docRef, newProject).then((e)=>{
         setSuccess(true);
+        isopenSet(false)
       }).catch((e)=>{
         setFaileur(true)
       });

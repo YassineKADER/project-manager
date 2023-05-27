@@ -19,11 +19,10 @@ export const EditProject = ({ isopen, isopenSet , uid}) => {
   const [faileur, setFaileur] = useState(false);
   const [projectName, setProjectName] = useState("");
   const updateProjectName = (project)=>{
-    if(project!=""){
+    if(project!="" && project!=null){
         const docref = doc(db, "projects", uid)
-        updateDoc(docref, {name:project})
+        updateDoc(docref, {name:project}).then(()=>{window.location.reload();})
         isopenSet(false)
-        window.location.reload();
     }
   }
   return (
@@ -43,7 +42,7 @@ export const EditProject = ({ isopen, isopenSet , uid}) => {
         aria-describedby="keep-mounted-modal-description"
       >
         <Card style={style} variant="outlined">
-          <Typography>Create a Project</Typography>
+          <Typography>Edit Project Name</Typography>
           <TextField
             label={"Project Name"}
             fullWidth
@@ -67,7 +66,7 @@ export const EditProject = ({ isopen, isopenSet , uid}) => {
                 console.log(projectName)
               }}
             >
-              Create !
+              Change !
             </Button>
           </div>
         </Card>
