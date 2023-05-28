@@ -78,7 +78,7 @@ export const Profeil = () => {
         value={lastName}
         onChange={(event) => {setLastName(event.target.value)}}
         />
-        <div >
+        <div style={{display:"none"}}>
         <p>Display Project On Your Profeil
         <Switch
         checked={displayProjects}
